@@ -4,109 +4,122 @@
 #include "db.h"
 #include "user.h"
 #include <regex.h>
-typedef enum
-{
-    invalid,
-    valid,
 
-} Status;
-
-// int check_string(char *word);
+int check_date(char *word);
+int count_digit(char *value);
 
 int check_data(char *line, User **db, int *i)
 {
 
-    Status flag = valid;
+    int flag = 1;
     int col = 0;
-    //  char line2[100];
+
     char *line2 = strdup(line);
 
-    char *value = strtok(line, ",");
+    char *value = strtok(line, ";");
 
     while (value)
     {
+         if (col == 2){
 
-        /*  if (col == 0)
-         {
-             if (strlen(value) > 20 || check_string(value))
-             {
-                 flag = invalid;
-             }
-         }
-         if (col == 1)
-         {
-             if (strlen(value) > 20 || check_string(value))
-             {
-                 flag = invalid;
-             }
-         } */
-        /*             if(col==2){
-                   if (strlen(value) > 20 || check_string(value))
-                       {
-                           flag = invalid;
-                       }
-                  }
-                  if(col==3){
-                    user.idNumber= malloc(10*sizeof(int));
-                    strcpy(user.idNumber,value);
-                }
-                    if(col==4){
-                        user.phone= malloc(10*sizeof(int));
-                        strcpy(user.phone,value);
-                    }
-                 if(col==5){
-                    user.debt= malloc(10*sizeof(float));
-                     strcpy(user.debt,(float)value);
-                 }*/
-        if (col == 6)
-        {
-            regex_t reegex;
-            int value;
-            value = regcomp(&reegex, "^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$", 0);
-            if (value == 0)
+            if (check_date(value))
             {
-                printf("RegEx compiled successfully.");
+                flag = 0;
+
+                printf("invalid birth date->>  %s \n", line2);       
             }
+        }  
 
-            // Else for Compilation error
-            else
+        if (col == 3)
+        {         
+            if (count_digit(value) != 9)
             {
-                printf("Compilation error.");
-            };
-         
+                flag = 0;
+                printf("invalid Id number->>  %s \n", line2);
+            }
         }
+        if (col == 4)
+        {
+            if (count_digit(value) != 10)
+            {
+                flag = 0;
+                printf("invalid phone number->>  %s \n", line2);
+            }
+        }
+         if (col == 6)
+        {
+            if (check_date(value))
+            {
+                flag = 0;
+                printf("invalid debt date->>  %s \n", line2);
+            }
+        } 
 
-        value = strtok(NULL, ", ");
+        value = strtok(NULL, "; ");
         col++;
+   
     }
-    // printf("%s",line2);
-    // create_db(line2, &db, i);
-
+    
     if (flag)
     {
-        create_db(line2, db, i);
+        create_db(&line2, db, i);
     }
+
+    free(line2);
+
     return 0;
 }
 
-/* int check_string(char *word)
+int check_date(char *word)
 {
 
-    int size = strlen(word);
-    int i;
-    for (i = 0; i < size; i++)
-    {
 
-        if ((*word < 'a' || *word > 'z') || (*word < 'A' || *word > 'Z'))
+
+    int yy = 0;
+    int mm = 0;
+    int dd = 0;
+ 
+
+  sscanf(word, "%d/%d/%d",&yy,&mm,&dd);
+
+
+    if (yy >= 1800 && yy <= 9999)
+    {
+        if (mm >= 1 && mm <= 12)
         {
-            return 1;
+            if ((dd >= 1 && dd <= 31) && (mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12))
+            {
+                return 0;
+            }
+            else if ((dd >= 1 && dd <= 30) && (mm == 4 || mm == 6 || mm == 9 || mm == 11))
+            {
+                return 0;
+            }
+            else if ((dd >= 1 && dd <= 28) && (mm == 2))
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
         }
     }
 
-    while(1){
 
-    }
-    return 0;
-} */
+    return 1;
+}
 
+int count_digit(char *value)
+{
 
+    int x=atoi(value);
+    int i = 0;
+    do
+    {
+        x /= 10;
+        i++;
+    } while (x);
+ 
+    return i;
+}

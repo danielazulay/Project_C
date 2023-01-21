@@ -3,6 +3,6 @@
 
 #include "user.h"
 
-int create_db(char *line,User ** db,int *i);
+int create_db(char **line, User **db, int *i);
 
 #endif

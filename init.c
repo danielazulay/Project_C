@@ -4,13 +4,22 @@
 #include "user.h"
 #include "validate.h"
 #define SIZE_LEN(x) sizeof(x) / sizeof(x[0])
+typedef struct
+{
+  const char *func_Name;
+  void (*function)(char *, char *, char *, int *, User *);
+} functions;
 
+
+
+void print_one(User *db);
+void sel(char *variable, char *comp, char *value, int *i, User *db);
 void printdb(User *db, int *i);
-void set_in_order(User **db, int *pt_i, int field);
 void free_all(User **db, int *pt_i);
 
 int main(int argc, char **argv)
 {
+
 
   User *db = malloc(sizeof(User));
   int i = 0;
@@ -32,12 +41,6 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  if (!file)
-  {
-    printf("Error");
-    exit(1);
-  }
-
   while (fgets(line, sizeof(line), file))
   {
     check_data(line, &db, pt_i);
@@ -45,15 +48,34 @@ int main(int argc, char **argv)
 
   fclose(file);
 
-  int op;
-
   printdb(db, &i);
-
+    functions arr_func[] = {{"select", &sel}};
+  int op;
+  char select[10] = {0};
+  char variable[10] = {0};
+  char cop[2] = {0};
+  char value[10] = {0};
+/*   char set[4] = {0};
+  char variable1[10] = {0};
+  char cop1[2] = {0};
+  char value1[10] = {0};
+  char variable2[10] = {0};
+  char cop2[2] = {0};
+  char value2[10] = {0};
+  char variable3[10] = {0};
+  char cop3[2] = {0};
+  char value3[10] = {0};
+  char variable4[10] = {0};
+  char cop4[2] = {0};
+  char value4[10] = {0};
+  char variable5[10] = {0};
+  char cop5[2] = {0};
+  char value5[10] = {0}; */
   while (1)
   {
     printf("--------------MENU-----------------\n");
-    printf("(0) print the name in Order Alphabethic \n");
-    printf("(1) print the last in Order Alphabethic \n");
+    printf("(0) console search \n");
+    printf("(1) console input \n");
     printf("(2) Free memory\n");
     printf("(3) exit from the program\n");
     printf("------------------------------------\n");
@@ -62,16 +84,19 @@ int main(int argc, char **argv)
     switch (op)
     {
     case 0:
-      puts("Print in Order by Name:\n");
-      set_in_order(&db, pt_i, 0);
-      // printdb(db, pt_i);
 
+      scanf("%s %s %s %s", select, variable, cop, value);
+      puts("");
+    
+      (*arr_func[0].function)(variable, cop, value, &i, db);
       break;
     case 1:
-      puts("Print in Order by Last Name:\n");
-      set_in_order(&db, pt_i, 1);
+/* 
+      scanf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", set, variable1, cop1, value1, variable2, cop2, value2, variable3, cop3, value3, variable4, cop4, value4, variable5, cop5, value5);
+      puts("");
+      (*arr_func[0].function)(variable1, cop1, value1, variable2, cop2, value2, variable3, cop3, value3, variable4, cop4, value4, variable5, cop5, value5, &i, db);
 
-      break;
+      break; */
 
     case 2:
       free_all(&db, pt_i);
@@ -79,15 +104,10 @@ int main(int argc, char **argv)
     case 3:
       return 0;
       break;
-    case 8:
-      break;
-    case 7:
-
-    default:
-      break;
     }
   }
 
+  free_all(&db, pt_i);
   return 0;
 }
 
@@ -97,83 +117,18 @@ void printdb(User *db, int *i)
   {
     printf("******Registre %d*******\n", k + 1);
     puts("");
-    printf("First Name: %s Last Name: %s birth: %s Id Number: %i Debt: %.2f Debt Date: %s \n", db[k].firstName, db[k].lastName, db[k].birth, db[k].idNumber, db[k].debt, db[k].debt_date);
+    printf("First Name: %s Last Name: %s birth: %s Id Number: %d Phonne Number: %d Debt: %.2f Debt Date: %s \n", db[k].firstName, db[k].lastName, db[k].birth, db[k].idNumber, db[k].phone, db[k].debt, db[k].debt_date);
 
     puts("********************\n");
   }
 }
 
-void set_in_order(User **db, int *i, int field)
+void print_one(User *db)
 {
 
-  if (field == 0)
-  {
-    for (int j = 0; j < *i - 2; j++)
-    {
-
-      for (int k = 0; k < *i - 1; k++)
-      {
-
-        if ((*db)[k].firstName[0] > (*db)[k + 1].firstName[0])
-        {
-          User aux = (*db)[k + 1];
-          (*db)[k + 1] = (*db)[k];
-          (*db)[k] = aux;
-        }
-        else if ((*db)[k].firstName[0] == (*db)[k + 1].firstName[0])
-        {
-          int l = 0;
-
-          while (((*db)[k].firstName[l] == (*db)[k + 1].firstName[l]) && (l <= strlen((*db)[k].firstName) || l <= strlen((*db)[k + 1].firstName)))
-          {
-            l++;
-          }
-          if ((*db)[k].firstName[l] > (*db)[k + 1].firstName[l])
-          {
-            User aux = (*db)[k + 1];
-            (*db)[k + 1] = (*db)[k];
-            (*db)[k] = aux;
-          }
-        }
-      }
-    }
-  }
-  else if (field == 1)
-  {
-    for (int j = 0; j < *i - 2; j++)
-    {
-
-      for (int k = 0; k < *i - 1; k++)
-      {
-
-        if ((*db)[k].lastName[0] > (*db)[k + 1].lastName[0])
-        {
-
-          User aux = (*db)[k + 1];
-          (*db)[k + 1] = (*db)[k];
-          (*db)[k] = aux;
-        }
-        else if ((*db)[k].lastName[0] == (*db)[k + 1].lastName[0])
-        {
-          int l = 0;
-
-          while (((*db)[k].lastName[l] == (*db)[k + 1].lastName[l]) && (l <= strlen((*db)[k].lastName) || l <= strlen((*db)[k + 1].lastName)))
-          {
-            l++;
-          }
-          if ((*db)[k].lastName[l] > (*db)[k + 1].lastName[l])
-          {
-
-            User aux = (*db)[k + 1];
-            (*db)[k + 1] = (*db)[k];
-            (*db)[k] = aux;
-          }
-        }
-      }
-    }
-  }
-
-  printdb(*db, i);
+  puts("");
+  printf("First Name: %s Last Name: %s birth: %s Id Number: %d Phonne Number: %d Debt: %.2f Debt Date: %s \n", db->firstName, db->lastName, db->birth, db->idNumber, db->phone, db->debt, db->debt_date);
+  puts("");
 }
 
 void free_all(User **db, int *i)
@@ -191,4 +146,122 @@ void free_all(User **db, int *i)
   puts("");
   printf("---memory freed---\n");
   puts("");
+}
+
+void sel(char *variable, char *comp, char *value, int *i, User *db)
+{
+
+ if (!strcmp("firstname", variable))
+  {
+    int flag = 0;
+    for (int k = 0; k < *i; k++)
+    {
+
+      if (!strcmp(db[k].firstName, value))
+      {
+        flag = 1;
+        User use = db[k];
+        print_one(&use);
+      }
+    }
+    if (flag == 0)
+      printf("%s %s %s not found \n", variable, comp, value);
+  }
+  else if (!strcmp("lastname", variable))
+  {
+    int flag = 0;
+    for (int k = 0; k < *i; k++)
+    {
+
+      if (!strcmp(db[k].lastName, value))
+      {
+        flag = 1;
+        User use = db[k];
+        print_one(&use);
+      }
+    }
+    if (flag == 0)
+      printf("%s %s %s not found \n", variable, comp, value);
+  }
+  else if (!strcmp("debt", variable))
+  {
+
+    if (!strcmp("=", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+        if (db[k].debt == atoi(value))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+    else if (!strcmp("<", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+        if (db[k].debt < atoi(value))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+    else if (!strcmp(">", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+        if (db[k].debt > atoi(value))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+    else if (!strcmp(">=", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+        if (db[k].debt > atoi(value))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+    else if (!strcmp("<=", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+        if (db[k].debt <= atoi(value))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+  } 
+    
+  
 }

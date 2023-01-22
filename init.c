@@ -32,13 +32,13 @@ int main(int argc, char **argv)
 
   char line[100];
 
-     if (argc < 0)
-    {
-      printf("Usage: %s <file name to read> <file name to write> <max area>\n", argv[0]);
-      return 1;
-    }  
+  if (argc < 0)
+  {
+    printf("Usage: %s <file name to read> <file name to write> <max area>\n", argv[0]);
+    return 1;
+  }
 
- FILE *file = fopen(argv[1], "r");
+  FILE *file = fopen(argv[1], "r");
 
   if (!file)
   {
@@ -78,11 +78,12 @@ int main(int argc, char **argv)
     case 0:
 
       scanf("%s %s %s %s", select, variable, cop, value);
-      if(strcmp("select", select)){
+      if (strcmp("select", select))
+      {
         printf("Did you mean select");
         puts("");
         scanf("%s %s %s %s", select, variable, cop, value);
-      }      
+      }
       puts("");
       (*arr_func[0].function)(variable, cop, value, &i, db);
       break;
@@ -149,13 +150,80 @@ void free_all(User **db, int *i)
 void sel(char *variable, char *comp, char *value, int *i, User *db)
 {
 
-  if (!strcmp("birth", variable)&&(!strcmp(">", comp) || !strcmp("<", comp)))
+  if (!strcmp("birth", variable) && (!strcmp(">", comp) || !strcmp("<", comp)))
   {
+    int flag = 0;
+    for (int k = 0; k < *i; k++)
+    {
+
+      if (compare_dates(value, db[k].birth, i, comp))
+      {
+        flag = 1;
+        User use = db[k];
+        print_one(&use);
+      }
+    }
+    if (flag == 0)
+      printf("%s %s %s not found \n", variable, comp, value);
+  }
+  else if (!strcmp("debtdate", variable) && (!strcmp(">", comp) || !strcmp("<", comp)))
+  {
+
+    int flag = 0;
+    for (int k = 0; k < *i; k++)
+    {
+
+      if (compare_dates(value, db[k].debt_date, i, comp))
+      {
+        flag = 1;
+        User use = db[k];
+        print_one(&use);
+      }
+    }
+    if (flag == 0)
+      printf("%s %s %s not found \n", variable, comp, value);
+  }
+  else if (!strcmp("firstname", variable) && !strcmp("=", comp))
+  {
+    int flag = 0;
+    for (int k = 0; k < *i; k++)
+    {
+
+      if (!strcmp(db[k].firstName, value))
+      {
+        flag = 1;
+        User use = db[k];
+        print_one(&use);
+      }
+    }
+    if (flag == 0)
+      printf("%s %s %s not found \n", variable, comp, value);
+  }
+  else if (!strcmp("lastname", variable))
+  {
+    int flag = 0;
+    for (int k = 0; k < *i; k++)
+    {
+
+      if (!strcmp(db[k].lastName, value))
+      {
+        flag = 1;
+        User use = db[k];
+        print_one(&use);
+      }
+    }
+    if (flag == 0)
+      printf("%s %s %s not found \n", variable, comp, value);
+  }
+  else if (!strcmp("debt", variable))
+  {
+
+    if (!strcmp("=", comp))
+    {
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-
-        if (compare_dates(value, db[k].birth, i, comp))
+        if (db[k].debt == atoi(value))
         {
           flag = 1;
           User use = db[k];
@@ -165,32 +233,12 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       if (flag == 0)
         printf("%s %s %s not found \n", variable, comp, value);
     }
-    else if (!strcmp("debtdate", variable)&&(!strcmp(">", comp) || !strcmp("<", comp)))
-    {
-
-    
-        int flag = 0;
-        for (int k = 0; k < *i; k++)
-        {
-
-          if (compare_dates(value, db[k].debt_date, i, comp))
-          {
-            flag = 1;
-            User use = db[k];
-            print_one(&use);
-          }
-        }
-        if (flag == 0)
-          printf("%s %s %s not found \n", variable, comp, value);
-    
-    }
-    else if (!strcmp("firstname", variable)&&!strcmp("=", comp))
+    else if (!strcmp("<", comp))
     {
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-
-        if (!strcmp(db[k].firstName, value))
+        if (db[k].debt < atoi(value))
         {
           flag = 1;
           User use = db[k];
@@ -200,13 +248,12 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       if (flag == 0)
         printf("%s %s %s not found \n", variable, comp, value);
     }
-    else if (!strcmp("lastname", variable))
+    else if (!strcmp(">", comp))
     {
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-
-        if (!strcmp(db[k].lastName, value))
+        if (db[k].debt > atoi(value))
         {
           flag = 1;
           User use = db[k];
@@ -216,144 +263,94 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       if (flag == 0)
         printf("%s %s %s not found \n", variable, comp, value);
     }
-    else if (!strcmp("debt", variable))
+    else if (!strcmp(">=", comp))
     {
-
-      if (!strcmp("=", comp))
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
       {
-        int flag = 0;
-        for (int k = 0; k < *i; k++)
+        if (db[k].debt > atoi(value))
         {
-          if (db[k].debt == atoi(value))
-          {
-            flag = 1;
-            User use = db[k];
-            print_one(&use);
-          }
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
         }
-        if (flag == 0)
-          printf("%s %s %s not found \n", variable, comp, value);
-      } else if (!strcmp("<", comp))
-      {
-        int flag = 0;
-        for (int k = 0; k < *i; k++)
-        {
-          if (db[k].debt < atoi(value))
-          {
-            flag = 1;
-            User use = db[k];
-            print_one(&use);
-          }
-        }
-        if (flag == 0)
-          printf("%s %s %s not found \n", variable, comp, value);
       }
-      else if (!strcmp(">", comp))
-      {
-        int flag = 0;
-        for (int k = 0; k < *i; k++)
-        {
-          if (db[k].debt > atoi(value))
-          {
-            flag = 1;
-            User use = db[k];
-            print_one(&use);
-          }
-        }
-        if (flag == 0)
-          printf("%s %s %s not found \n", variable, comp, value);
-      }
-      else if (!strcmp(">=", comp))
-      {
-        int flag = 0;
-        for (int k = 0; k < *i; k++)
-        {
-          if (db[k].debt > atoi(value))
-          {
-            flag = 1;
-            User use = db[k];
-            print_one(&use);
-          }
-        }
-        if (flag == 0)
-          printf("%s %s %s not found \n", variable, comp, value);
-      }
-      else if (!strcmp("<=", comp))
-      {
-        int flag = 0;
-        for (int k = 0; k < *i; k++)
-        {
-          if (db[k].debt <= atoi(value))
-          {
-            flag = 1;
-            User use = db[k];
-            print_one(&use);
-          }
-        }
-        if (flag == 0)
-          printf("%s %s %s not found \n", variable, comp, value);
-      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
     }
-  
+    else if (!strcmp("<=", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+        if (db[k].debt <= atoi(value))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+  }
 }
-  void set(char *value, int *i, User **db)
+void set(char *value, int *i, User **db)
+{
+
+  char line[1024] = {0};
+
+  char str[1024];
+  strcpy(str, value);
+  char *st1 = str;
+
+  char *arr[7] = {0};
+
+  for (int i = 0; i < 7; i++)
   {
-
-    char line[1024] = {0};
-
-    char str[1024];
-    strcpy(str, value);
-    char *st1 = str;
-
-    char *arr[7] = {0};
-
-    for (int i = 0; i < 7; i++)
-    {
-      char *str2 = strtok(st1, "=");
-      str2 = strtok(NULL, " ");
-      arr[i] = str2;
-      st1 = strstr(str, str2);
-    }
-
-    snprintf(line, 6 * sizeof(arr), "%s;%s;%s;%s;%s;%s;%s", arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);
-
-    check_data(line, db, i);
+    char *str2 = strtok(st1, "=");
+    str2 = strtok(NULL, " ");
+    arr[i] = str2;
+    st1 = strstr(str, str2);
   }
 
-  int compare_dates(char *value, char *date, int *i, char *comp)
+  snprintf(line, 6 * sizeof(arr), "%s;%s;%s;%s;%s;%s;%s", arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);
+
+  check_data(line, db, i);
+}
+
+int compare_dates(char *value, char *date, int *i, char *comp)
+{
+
+  char valuedate[10];
+  strcpy(valuedate, value);
+
+  for (int j = 0; j < 10; j++)
   {
-
-    char valuedate[10];
-    strcpy(valuedate, value);
-
-    for (int j = 0; j < 10; j++)
+    if (!strcmp("<", comp))
     {
-      if (!strcmp("<", comp))
+      if (date[j] > valuedate[j])
       {
-        if (date[j] > valuedate[j])
-        {
-          return 0;
-        }
-        else if (date[j] < valuedate[j])
-        {
-          return 1;
-        }
+        return 0;
       }
-
-      if (!strcmp(">", comp))
+      else if (date[j] < valuedate[j])
       {
-        if (date[j] < valuedate[j])
-        {
-          return 0;
-        }
-        else if (date[j] > valuedate[j])
-        {
-          return 1;
-        }
+        return 1;
       }
     }
 
-    return 0;
+    if (!strcmp(">", comp))
+    {
+      if (date[j] < valuedate[j])
+      {
+        return 0;
+      }
+      else if (date[j] > valuedate[j])
+      {
+        return 1;
+      }
+    }
   }
 
-  // set firstname=carol lastname=setman birth=1986/04/24 idnumber=123456789 phonenumber=1234567891 debt=111 debtdate=2011/01/01
+  return 0;
+}

@@ -55,7 +55,7 @@ int create_db(char **line, User **db, int *i)
   }
   if (*i == 0)
   {
-    *db= malloc(sizeof(User));
+    *db = malloc(sizeof(User));
     (*db)[*i] = user;
     *i = (*i) + 1;
   }
@@ -65,7 +65,7 @@ int create_db(char **line, User **db, int *i)
     insert_new(*db, &user, i);
     *i = (*i) + 1;
   }
-  
+
   return 0;
 }
 
@@ -89,7 +89,7 @@ int insert_new(User *db, User *user, int *i)
 {
   int j;
 
-  for (j = 0; j < *i-1 ; j++)
+  for (j = 0; j < *i - 1; j++)
   {
 
     if (db[j].debt < user->debt)
@@ -108,8 +108,6 @@ int insert_new(User *db, User *user, int *i)
 
 void insert_db(User **db, int *i)
 {
-  
-
   int x = (*i) + 1;
   *db = realloc(*db, x * sizeof(User));
 

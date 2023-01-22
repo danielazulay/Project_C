@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "user.h"
 #include "validate.h"
-#define SIZE_LEN(x) sizeof(x) / sizeof(x[0])
+
 typedef struct
 {
   const char *func_Name;
@@ -78,6 +78,11 @@ int main(int argc, char **argv)
     case 0:
 
       scanf("%s %s %s %s", select, variable, cop, value);
+      if(strcmp("select", select)){
+        printf("Did you mean select");
+        puts("");
+        scanf("%s %s %s %s", select, variable, cop, value);
+      }      
       puts("");
       (*arr_func[0].function)(variable, cop, value, &i, db);
       break;
@@ -179,7 +184,7 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
           printf("%s %s %s not found \n", variable, comp, value);
     
     }
-    else if (!strcmp("firstname", variable))
+    else if (!strcmp("firstname", variable)&&!strcmp("=", comp))
     {
       int flag = 0;
       for (int k = 0; k < *i; k++)

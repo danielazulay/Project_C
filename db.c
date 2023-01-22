@@ -55,6 +55,7 @@ int create_db(char **line, User **db, int *i)
   }
   if (*i == 0)
   {
+    *db= malloc(sizeof(User));
     (*db)[*i] = user;
     *i = (*i) + 1;
   }
@@ -65,7 +66,7 @@ int create_db(char **line, User **db, int *i)
 
     *i = (*i) + 1;
   }
-  free(value);
+
   return 0;
 }
 

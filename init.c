@@ -32,14 +32,14 @@ int main(int argc, char **argv)
 
   char line[100];
 
-  /*    if (argc < 0)
+     if (argc < 0)
     {
       printf("Usage: %s <file name to read> <file name to write> <max area>\n", argv[0]);
       return 1;
-    }  */
+    }  
 
-  // FILE *file = fopen(argv[1], "r");
-  FILE *file = fopen("arquivo.csv", "r");
+ FILE *file = fopen(argv[1], "r");
+ // FILE *file = fopen("arquivo.csv", "r");
   if (!file)
   {
     printf("Error: file %s does not exist.\n", argv[1]);

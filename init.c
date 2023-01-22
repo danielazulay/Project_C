@@ -10,16 +10,21 @@ typedef struct
   void (*function)(char *, char *, char *, int *, User *);
 } functions;
 
-
+typedef struct
+{
+  const char *func_Name;
+  void (*function)(char *, int *, User **);
+} functions2;
 
 void print_one(User *db);
 void sel(char *variable, char *comp, char *value, int *i, User *db);
+void set(char *value, int *i, User **db);
 void printdb(User *db, int *i);
 void free_all(User **db, int *pt_i);
+int compare_dates(char *value, char *date, int *i);
 
 int main(int argc, char **argv)
 {
-
 
   User *db = malloc(sizeof(User));
   int i = 0;
@@ -49,28 +54,14 @@ int main(int argc, char **argv)
   fclose(file);
 
   printdb(db, &i);
-    functions arr_func[] = {{"select", &sel}};
+  functions arr_func[] = {{"select", &sel}};
+  functions2 arr_func2[] = {{"set", &set}};
   int op;
   char select[10] = {0};
   char variable[10] = {0};
   char cop[2] = {0};
   char value[10] = {0};
-/*   char set[4] = {0};
-  char variable1[10] = {0};
-  char cop1[2] = {0};
-  char value1[10] = {0};
-  char variable2[10] = {0};
-  char cop2[2] = {0};
-  char value2[10] = {0};
-  char variable3[10] = {0};
-  char cop3[2] = {0};
-  char value3[10] = {0};
-  char variable4[10] = {0};
-  char cop4[2] = {0};
-  char value4[10] = {0};
-  char variable5[10] = {0};
-  char cop5[2] = {0};
-  char value5[10] = {0}; */
+  char comand[1024];
   while (1)
   {
     printf("--------------MENU-----------------\n");
@@ -79,7 +70,8 @@ int main(int argc, char **argv)
     printf("(2) Free memory\n");
     printf("(3) exit from the program\n");
     printf("------------------------------------\n");
-    scanf("%u", &op);
+
+    scanf("%d%*c", &op);
 
     switch (op)
     {
@@ -87,23 +79,26 @@ int main(int argc, char **argv)
 
       scanf("%s %s %s %s", select, variable, cop, value);
       puts("");
-    
       (*arr_func[0].function)(variable, cop, value, &i, db);
       break;
-    case 1:
-/* 
-      scanf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", set, variable1, cop1, value1, variable2, cop2, value2, variable3, cop3, value3, variable4, cop4, value4, variable5, cop5, value5);
-      puts("");
-      (*arr_func[0].function)(variable1, cop1, value1, variable2, cop2, value2, variable3, cop3, value3, variable4, cop4, value4, variable5, cop5, value5, &i, db);
 
-      break; */
+    case 1:
+
+      fgets(comand, sizeof(comand), stdin);
+      (*arr_func2[0].function)(comand, &i, &db);
+      printdb(db, &i);
+      break;
 
     case 2:
+
       free_all(&db, pt_i);
       break;
+
     case 3:
+
       return 0;
       break;
+      
     }
   }
 
@@ -151,7 +146,47 @@ void free_all(User **db, int *i)
 void sel(char *variable, char *comp, char *value, int *i, User *db)
 {
 
- if (!strcmp("firstname", variable))
+  if (!strcmp("birth", variable))
+  {
+
+    if (!strcmp(">", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+
+        if (compare_dates(value, db[k].birth, i))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+  }
+  else if (!strcmp("debt_date", variable))
+  {
+
+    if (!strcmp(">", comp))
+    {
+      int flag = 0;
+      for (int k = 0; k < *i; k++)
+      {
+
+        if (compare_dates(value, db[k].birth, i))
+        {
+          flag = 1;
+          User use = db[k];
+          print_one(&use);
+        }
+      }
+      if (flag == 0)
+        printf("%s %s %s not found \n", variable, comp, value);
+    }
+  }
+  else if (!strcmp("firstname", variable))
   {
     int flag = 0;
     for (int k = 0; k < *i; k++)
@@ -261,7 +296,53 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       if (flag == 0)
         printf("%s %s %s not found \n", variable, comp, value);
     }
-  } 
-    
-  
+  }
 }
+
+void set(char *value, int *i, User **db)
+{
+
+  char line[1024] = {0};
+
+  char str[1024];
+  strcpy(str, value);
+  char *st1 = str;
+
+  char *arr[7] = {0};
+
+  for (int i = 0; i < 7; i++)
+  {
+    char *str2 = strtok(st1, "=");
+    str2 = strtok(NULL, " ");
+    arr[i] = str2;
+    st1 = strstr(str, str2);
+  }
+
+  snprintf(line, 6 * sizeof(arr), "%s;%s;%s;%s;%s;%s;%s", arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);
+
+  check_data(line, db, i);
+}
+
+int compare_dates(char *value, char *date, int *i)
+{
+
+  char valuedate[10];
+  strcpy(valuedate, value);
+
+  for (int j = 0; j < 10; j++)
+  {
+
+    if (date[j] < valuedate[j])
+    {
+      return 0;
+    }
+    else if (date[j] > valuedate[j])
+    {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+// set firstname=carol lastname=setman birth=1986/04/24 idnumber=123456789 phonenumber=1234567891 debt=111 debtdate=2011/01/01

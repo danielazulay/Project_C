@@ -25,7 +25,6 @@ int create_db(char **line, User **db, int *i)
 
     if (col == 1)
     {
-
       user.lastName = strdup(value);
     }
     if (col == 2)
@@ -35,18 +34,15 @@ int create_db(char **line, User **db, int *i)
 
     if (col == 3)
     {
-
       user.idNumber = atoi(value);
     }
 
     if (col == 4)
     {
-
       user.phone = atoi(value);
     }
     if (col == 5)
     {
-
       user.debt = atof(value);
     }
     if (col == 6)
@@ -60,18 +56,16 @@ int create_db(char **line, User **db, int *i)
   if (*i == 0)
   {
     (*db)[*i] = user;
-       *i = (*i) + 1;
-   
+    *i = (*i) + 1;
   }
   else if (insert_duplicate(*db, &user, i))
   {
     insert_db(db, i);
     insert_new(*db, &user, i);
 
-        *i = (*i) + 1;
+    *i = (*i) + 1;
   }
-
-
+  free(value);
   return 0;
 }
 
@@ -115,12 +109,12 @@ int insert_new(User *db, User *user, int *i)
 }
 
 void insert_db(User **db, int *i)
-  {
-    int x = (*i) + 1;
-    *db = realloc(*db, x * sizeof(User));
+{
+  int x = (*i) + 1;
+  *db = realloc(*db, x * sizeof(User));
 
-    if (!db)
-    {
-      printf("Error on realloc");
-    }
+  if (!db)
+  {
+    printf("Error on realloc");
   }
+}

@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     }  
 
  FILE *file = fopen(argv[1], "r");
- // FILE *file = fopen("arquivo.csv", "r");
+
   if (!file)
   {
     printf("Error: file %s does not exist.\n", argv[1]);

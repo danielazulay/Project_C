@@ -7,17 +7,11 @@
 typedef struct
 {
   const char *func_Name;
-  void (*function)(char *, char *, char *, int *, User *);
+  void (*function)(char *, int *, User **);
 } functions;
 
-typedef struct
-{
-  const char *func_Name;
-  void (*function)(char *, int *, User **);
-} functions2;
-
 void print_one(User *db);
-void sel(char *variable, char *comp, char *value, int *i, User *db);
+void sel(char *value, int *i, User **db);
 void set(char *value, int *i, User **db);
 void printdb(User *db, int *i);
 void free_all(User **db, int *pt_i);
@@ -38,8 +32,8 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  FILE *file = fopen(argv[1], "r");
-
+  // FILE *file = fopen(argv[1], "r");
+  FILE *file = fopen("arquivo.csv", "r");
   if (!file)
   {
     printf("Error: file %s does not exist.\n", argv[1]);
@@ -54,61 +48,30 @@ int main(int argc, char **argv)
   fclose(file);
 
   printdb(db, &i);
-  functions arr_func[] = {{"select", &sel}};
-  functions2 arr_func2[] = {{"set", &set}};
-  int op;
-  char select[10] = {0};
-  char variable[10] = {0};
-  char cop[2] = {0};
-  char value[10] = {0};
+
+  functions arr_func[] = {{"select", &sel}, {"set", &set}};
+
   char comand[1024];
   while (1)
   {
-    printf("--------------MENU-----------------\n");
-    printf("(0) console select \n");
-    printf("(1) console set \n");
-    printf("(2) Free memory\n");
-    printf("(3) exit from the program\n");
-    printf("------------------------------------\n");
 
-    scanf("%d%*c", &op);
+    fgets(comand, sizeof(comand), stdin);
 
-    switch (op)
+    if (strstr(comand, "select"))
     {
-    case 0:
-
-      scanf("%s %s %s %s", select, variable, cop, value);
-      if (strcmp("select", select))
-      {
-        printf("Did you mean select");
-        puts("");
-        scanf("%s %s %s %s", select, variable, cop, value);
-      }
-      puts("");
-      (*arr_func[0].function)(variable, cop, value, &i, db);
-      break;
-
-    case 1:
-
-      fgets(comand, sizeof(comand), stdin);
-      (*arr_func2[0].function)(comand, &i, &db);
+      (*arr_func[0].function)(comand, &i, &db);
+    }
+    else if (strstr(comand, "set"))
+    {
+      (*arr_func[1].function)(comand, &i, &db);
       printdb(db, &i);
-      break;
-
-    case 2:
-
+    }
+    else if (strstr(comand, "exit"))
+    {
       free_all(&db, pt_i);
-      break;
-
-    case 3:
-
-      return 0;
       break;
     }
   }
-
-  free_all(&db, pt_i);
-  return 0;
 }
 
 void printdb(User *db, int *i)
@@ -147,8 +110,34 @@ void free_all(User **db, int *i)
   puts("");
 }
 
-void sel(char *variable, char *comp, char *value, int *i, User *db)
+void sel(char *line, int *i, User **db)
 {
+
+  char str[1024] = {0};
+  strcpy(str, line);
+
+  char *point;
+  char comp[2] = {0};
+  char value[40] = {0};
+  char variable[50] = {0};
+  char *vr[] = {"firstname", "lastname", "birth", "idnumber", "phonenumber", "debt", "debtdate"};
+
+  for (int i = 0; i < 7; i++)
+  {
+    char *str2 = strstr(str, *(vr + i));
+    if (str2)
+    {
+      strcpy(variable, vr[i]);
+      point = strtok(str2, " ");
+      point = strtok(NULL, " ");
+      strcpy(comp, point);
+      point = strtok(line, point);
+      point = strtok(NULL, "\n");
+      point++;
+      strcpy(value, point);
+      break;
+    }
+  }
 
   if (!strcmp("birth", variable) && (!strcmp(">", comp) || !strcmp("<", comp)))
   {
@@ -156,10 +145,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
     for (int k = 0; k < *i; k++)
     {
 
-      if (compare_dates(value, db[k].birth, i, comp))
+      if (compare_dates(value, (*db)[k].birth, i, comp))
       {
         flag = 1;
-        User use = db[k];
+        User use = (*db)[k];
         print_one(&use);
       }
     }
@@ -173,10 +162,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
     for (int k = 0; k < *i; k++)
     {
 
-      if (compare_dates(value, db[k].debt_date, i, comp))
+      if (compare_dates(value, (*db)[k].debt_date, i, comp))
       {
         flag = 1;
-        User use = db[k];
+        User use = (*db)[k];
         print_one(&use);
       }
     }
@@ -189,10 +178,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
     for (int k = 0; k < *i; k++)
     {
 
-      if (!strcmp(db[k].firstName, value))
+      if (!strcmp((*db)[k].firstName, value))
       {
         flag = 1;
-        User use = db[k];
+        User use = (*db)[k];
         print_one(&use);
       }
     }
@@ -205,10 +194,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
     for (int k = 0; k < *i; k++)
     {
 
-      if (!strcmp(db[k].lastName, value))
+      if (!strcmp((*db)[k].lastName, value))
       {
         flag = 1;
-        User use = db[k];
+        User use = (*db)[k];
         print_one(&use);
       }
     }
@@ -223,10 +212,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-        if (db[k].debt == atoi(value))
+        if ((*db)[k].debt == atoi(value))
         {
           flag = 1;
-          User use = db[k];
+          User use = *db[k];
           print_one(&use);
         }
       }
@@ -238,10 +227,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-        if (db[k].debt < atoi(value))
+        if ((*db)[k].debt < atoi(value))
         {
           flag = 1;
-          User use = db[k];
+          User use = (*db)[k];
           print_one(&use);
         }
       }
@@ -253,10 +242,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-        if (db[k].debt > atoi(value))
+        if ((*db)[k].debt > atoi(value))
         {
           flag = 1;
-          User use = db[k];
+          User use = (*db)[k];
           print_one(&use);
         }
       }
@@ -268,10 +257,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-        if (db[k].debt > atoi(value))
+        if ((*db)[k].debt > atoi(value))
         {
           flag = 1;
-          User use = db[k];
+          User use = (*db)[k];
           print_one(&use);
         }
       }
@@ -283,10 +272,10 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
       int flag = 0;
       for (int k = 0; k < *i; k++)
       {
-        if (db[k].debt <= atoi(value))
+        if ((*db)[k].debt <= atoi(value))
         {
           flag = 1;
-          User use = db[k];
+          User use = (*db)[k];
           print_one(&use);
         }
       }
@@ -295,6 +284,7 @@ void sel(char *variable, char *comp, char *value, int *i, User *db)
     }
   }
 }
+
 void set(char *value, int *i, User **db)
 {
 
@@ -302,16 +292,18 @@ void set(char *value, int *i, User **db)
 
   char str[1024];
   strcpy(str, value);
-  char *st1 = str;
 
   char *arr[7] = {0};
 
+  char *vr[] = {"firstname=", "lastname=", "birth=", "idnumber=", "phonenumber=", "debt=", "debtdate="};
+
   for (int i = 0; i < 7; i++)
   {
-    char *str2 = strtok(st1, "=");
-    str2 = strtok(NULL, " ");
-    arr[i] = str2;
-    st1 = strstr(str, str2);
+
+    char *str2 = strstr(str, vr[i]);
+    arr[i] = strtok(str2, "=");
+    arr[i] = strtok(NULL, " ");
+    printf("%s ", arr[i]);
   }
 
   snprintf(line, 6 * sizeof(arr), "%s;%s;%s;%s;%s;%s;%s", arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]);

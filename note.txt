@@ -1,0 +1,8 @@
+* dbc query.c csv.c main.c -o main
+gcc db.c csv.c server.c - o server
+gcc cliente -o cliente
+
+como atoai
+sscanf(%d)
+
+string, %d, &numenber

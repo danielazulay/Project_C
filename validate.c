@@ -3,12 +3,14 @@
 #include <stdio.h>
 #include "db.h"
 #include "user.h"
-#include <regex.h>
+
+
+
 
 int check_date(char *word);
 int count_digit(char *value);
 
-int check_data(char *line, User **db, int *i)
+int check_data(char *line)
 {
 
     int flag = 1;
@@ -73,7 +75,7 @@ int check_data(char *line, User **db, int *i)
 
     if (flag)
     {
-        create_db(&line2, db, i);
+        create_db(&line2);
     }
     free(line2);
     return 0;

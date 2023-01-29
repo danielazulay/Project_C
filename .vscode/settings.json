@@ -3,6 +3,8 @@
         "stdlib.h": "c",
         "*.tcc": "c",
         "type_traits": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "user.h": "c",
+        "stdio.h": "c"
     }
 }

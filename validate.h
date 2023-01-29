@@ -3,7 +3,7 @@
 
 #include "user.h"
 
-int check_data(char *line,User **db,int *i);
+int check_data(char *line);
 
 
 #endif

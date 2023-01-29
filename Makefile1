@@ -1,0 +1,11 @@
+server: db.o thread_server.o
+	gcc -g  db.o  thread_server.o  -o server -lpthread
+
+db.o: db.c
+	gcc -g -Wall -c  db.c
+
+thread_server.o: thread_server.c 
+	gcc -g -Wall -c  thread_server.c
+
+clean:
+	@rm -f *.o *.html bst_points bst_int
